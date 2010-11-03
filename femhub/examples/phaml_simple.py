@@ -35,6 +35,34 @@ def get_solution_points(polygons, orders):
     return array(x), array(y)
 
 def run(problem_number=1, params={}):
+    """
+    Allows to run phaml examples with various parameters.
+
+    problem_number ... which example to run
+    params         ... solver parameters (refinement strategy,
+                       error tolerance, ...)
+
+    Examples:
+
+    >>> import phaml
+    >>> run(1, params = {
+            "term_energy_err": 1e-6,
+            "hp_strategy": phaml.HP_SMOOTH_PRED,
+            })
+    >>> run(2, params = {
+            "term_energy_err": 1e-4,
+            "hp_strategy": phaml.HP_SMOOTH_PRED,
+            })
+    >>> run(2, params = {
+            "term_energy_err": 1e-4,
+            "hp_strategy": phaml.HP_PRIOR2P_H1,
+            })
+    >>> run(2, params = {
+            "term_energy_err": 1e-4,
+            "hp_strategy": phaml.HP_REFSOLN_ELEM,
+            })
+
+    """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     domain_file = os.path.join(current_dir, "data", "domain")
     p = Phaml(domain_file, problem_number)
