@@ -34,11 +34,11 @@ def get_solution_points(polygons, orders):
         y.extend(e_y)
     return array(x), array(y)
 
-def run():
+def run(problem_number=1, params={}):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     domain_file = os.path.join(current_dir, "data", "domain")
-    p = Phaml(domain_file)
-    p.solve()
+    p = Phaml(domain_file, problem_number)
+    p.solve(params)
     mesh_data = p.get_mesh()
     polygons, orders = convert_mesh(*mesh_data)
 
