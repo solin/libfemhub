@@ -44,6 +44,7 @@ def run(problem_number=1, params={}):
 
     Examples:
 
+    >>> from femhub.examples.phaml_simple import run
     >>> import phaml
     >>> run(1, params = {
             "term_energy_err": 1e-6,
