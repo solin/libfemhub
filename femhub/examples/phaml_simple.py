@@ -74,11 +74,56 @@ def run(problem_number=1, params={}):
     import matplotlib
     matplotlib.use("Agg")
     f = plot_mesh_mpl(polygons, orders)
-    f.savefig("mesh.png")
+    #f.savefig("mesh.png")
+    buffer = StringIO()
+    f.savefig(buffer, format='png', dpi=80)
+    return_png_image(buffer)
+
 
     x, y, mesh, _ = mesh_data
     values = p.get_solution_values(x, y)
 
     mesh = [elem-1 for elem in mesh]
     f = plot_sln_mayavi(x, y, mesh, values)
-    f.savefig("sln.png")
+    #f.savefig("sln.png")
+    buffer = StringIO()
+    f.savefig(buffer, format='png', dpi=80)
+    return_png_image(buffer)
+
+def return_png_image(png_data):
+    """
+    Returns the PNG image in png_data into the online lab as a result.
+
+    png_data ... StringIO() instance (or similar)
+
+    You can call this function as many times as you want, and it will keep
+    appending new images at the end of the output cell.
+    """
+    frame = inspect.currentframe().f_back
+
+    # FIXME: This depends on where you call the return_png_image() function
+    # from:
+    frame = frame.f_back
+
+    try:
+        try:
+            plots = frame.f_globals['__plots__']
+        except KeyError:
+            plots = []
+
+        value = png_data.getvalue()
+
+        data = base64.b64encode(value)
+        hash = hashlib.sha1(data).hexdigest()
+
+        plots.append({
+            'data': data,
+            'size': len(value),
+            'type': 'image/png',
+            'encoding': 'base64',
+            'checksum': hash,
+        })
+
+        frame.f_globals['__plots__'] = plots
+    finally:
+        del frame
