@@ -2,6 +2,15 @@
 Python version of the example "simple".
 """
 import os
+import base64
+import hashlib
+import inspect
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
+
 
 from numpy import array
 
