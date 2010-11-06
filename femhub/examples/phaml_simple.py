@@ -5,7 +5,7 @@ import os
 import base64
 import hashlib
 import inspect
-
+import tempfile
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -80,10 +80,7 @@ def run(problem_number=1, params={}):
     mesh_data = p.get_mesh()
     polygons, orders = convert_mesh(*mesh_data)
 
-    #import matplotlib
-    #matplotlib.use("Agg")
     f = plot_mesh_mpl(polygons, orders)
-    #f.savefig("mesh.png")
     buffer = StringIO()
     f.savefig(buffer, format='png', dpi=80)
     return_png_image(buffer)
@@ -94,9 +91,12 @@ def run(problem_number=1, params={}):
 
     mesh = [elem-1 for elem in mesh]
     f = plot_sln_mayavi(x, y, mesh, values)
-    #f.savefig("sln.png")
+    # We need to save the image through a file, until we figure out how to
+    # force mayavi to save it to the buffer directly
+    _, filename = tempfile.mkstemp("a.png")
+    f.savefig(filename)
     buffer = StringIO()
-    f.savefig(buffer, format='png', dpi=80)
+    buffer.write(open(filename).read())
     return_png_image(buffer)
 
 def return_png_image(png_data):
