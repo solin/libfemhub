@@ -80,8 +80,8 @@ def run(problem_number=1, params={}):
     mesh_data = p.get_mesh()
     polygons, orders = convert_mesh(*mesh_data)
 
-    import matplotlib
-    matplotlib.use("Agg")
+    #import matplotlib
+    #matplotlib.use("Agg")
     f = plot_mesh_mpl(polygons, orders)
     #f.savefig("mesh.png")
     buffer = StringIO()
