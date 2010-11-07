@@ -209,9 +209,12 @@ class Mesh:
         polygons = {}
         for n, elem in enumerate(self.elems):
             polygons[n] = array([self._nodes[i] for i in elem ])
-        orders = {}
-        for n, order in enumerate(self._orders):
-            orders[n] = order
+        if self._orders == []:
+            orders = None
+        else:
+            orders = {}
+            for n, order in enumerate(self._orders):
+                orders[n] = order
         return polygons, orders
 
     def _convert_nodes(self, a):
