@@ -1,13 +1,9 @@
 import sys
 from math import sqrt
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
 from numpy import array
 
-from plot import return_png_image, plot_mesh_mpl
+from plot import plot_mesh_mpl, return_mpl_figure
 import triangulation
 
 class Mesh:
@@ -178,17 +174,17 @@ class Mesh:
 
         """
         if method == "simple":
-            triangulation.plot_tria_mesh(self._nodes, self._elements,
+            f = triangulation.plot_tria_mesh(self._nodes, self._elements,
                     filename=filename, save=not lab)
             if lab:
-                show()
+                return_mpl_figure(f)
+            else:
+                f.savefig(filename, format='png', dpi=80)
         elif method == "nice":
             polygons, orders = self.to_polygons_orders()
             f = plot_mesh_mpl(polygons, orders)
             if lab:
-                buffer = StringIO()
-                f.savefig(buffer, format='png', dpi=80)
-                return_png_image(buffer)
+                return_mpl_figure(f)
             else:
                 f.savefig(filename, format='png', dpi=80)
         else:

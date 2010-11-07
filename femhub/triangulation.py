@@ -1,5 +1,5 @@
 from numpy import exp, sqrt, array
-from pylab import plot, savefig, grid, legend, clf, pcolor, spy, axis
+from pylab import plot, savefig, grid, legend, clf, pcolor, spy, axis, gcf
 
 class TriangulationError(Exception):
     pass
@@ -225,6 +225,7 @@ def plot_tria_mesh(pts_list, tria_mesh, filename="a.png", save=True):
     axis("equal")
     if save:
         savefig(filename)
+    return gcf()
 
 def convert_graph(vertices, edges):
     pts_list = []

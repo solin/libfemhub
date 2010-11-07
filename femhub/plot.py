@@ -1,6 +1,10 @@
+import sys
 import base64
 import hashlib
-import inspect
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 
 def plot_mesh_mpl(polygons=None, polynomial_orders=None, edges_only=False):
@@ -212,11 +216,15 @@ def return_png_image(png_data):
     You can call this function as many times as you want, and it will keep
     appending new images at the end of the output cell.
     """
+    #frame = sys._getframe(-1)
+    import inspect
     frame = inspect.currentframe().f_back
 
     # FIXME: This depends on where you call the return_png_image() function
     # from:
     frame = frame.f_back
+    frame = frame.f_back
+
 
     try:
         try:
@@ -240,3 +248,8 @@ def return_png_image(png_data):
         frame.f_globals['__plots__'] = plots
     finally:
         del frame
+
+def return_mpl_figure(fig):
+    buffer = StringIO()
+    fig.savefig(buffer, format='png', dpi=80)
+    return_png_image(buffer)
