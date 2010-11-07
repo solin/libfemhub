@@ -1,5 +1,14 @@
 import sys
 from math import sqrt
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
+
+from numpy import array
+
+from plot import return_png_image, plot_mesh_mpl
+import triangulation
 
 class Mesh:
     """
@@ -25,11 +34,13 @@ class Mesh:
     []
     """
 
-    def __init__(self, nodes=[], elements=[], boundaries=[], curves=[]):
+    def __init__(self, nodes=[], elements=[], boundaries=[], curves=[],
+            orders=[]):
         self._nodes = nodes
         self._elements = elements
         self._boundaries = boundaries
         self._curves = curves
+        self._orders = orders
 
     def __str__(self):
         return """Mesh:
@@ -156,7 +167,7 @@ class Mesh:
         """
         return self._curves
 
-    def plot(self, filename="a.png"):
+    def plot(self, filename="a.png", method="nice", lab=True):
         """
         Plots the mesh using matplotlib.
 
@@ -166,8 +177,22 @@ class Mesh:
         >>> m.plot() # plots the mesh
 
         """
-        import triangulation
-        triangulation.plot_tria_mesh(self._nodes, self._elements, filename=filename)
+        if method == "simple":
+            triangulation.plot_tria_mesh(self._nodes, self._elements,
+                    filename=filename, save=not lab)
+            if lab:
+                show()
+        elif method == "nice":
+            polygons, orders = self.to_polygons_orders()
+            f = plot_mesh_mpl(polygons, orders)
+            if lab:
+                buffer = StringIO()
+                f.savefig(buffer, format='png', dpi=80)
+                return_png_image(buffer)
+            else:
+                f.savefig(filename, format='png', dpi=80)
+        else:
+            raise ValueError("Unknown method")
 
     def show(self, filename="a.png"):
         """
@@ -180,6 +205,18 @@ class Mesh:
 
         """
         self.plot(filename=filename)
+
+    def to_polygons_orders(self):
+        """
+        Convert the mesh from Phaml representation to femhub representation.
+        """
+        polygons = {}
+        for n, elem in enumerate(self.elems):
+            polygons[n] = array([self._nodes[i] for i in elem ])
+        orders = {}
+        for n, order in enumerate(self._orders):
+            orders[n] = order
+        return polygons, orders
 
     def _convert_nodes(self, a):
         """

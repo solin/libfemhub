@@ -211,7 +211,7 @@ def triangulate_af(pts_list, bdy_edges):
     return elems
 
 # Plot triangular mesh
-def plot_tria_mesh(pts_list, tria_mesh, filename="a.png"):
+def plot_tria_mesh(pts_list, tria_mesh, filename="a.png", save=True):
     clf()
     label=""
     for elem in tria_mesh:
@@ -223,7 +223,8 @@ def plot_tria_mesh(pts_list, tria_mesh, filename="a.png"):
         y_array = array([ay,by,cy,ay])
         plot(x_array, y_array, "g-")
     axis("equal")
-    savefig(filename)
+    if save:
+        savefig(filename)
 
 def convert_graph(vertices, edges):
     pts_list = []

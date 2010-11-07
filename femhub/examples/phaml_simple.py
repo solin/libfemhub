@@ -16,18 +16,7 @@ from numpy import array
 
 from phaml import Phaml
 from femhub.plot import plot_mesh_mpl, plot_sln_mayavi
-
-def convert_mesh(x, y, elems, elems_orders):
-    """
-    Convert the mesh from Phaml representation to femhub representation.
-    """
-    polygons = {}
-    for n, elem in enumerate(elems):
-        polygons[n] = array([ [x[i-1], y[i-1]] for i in elem ])
-    orders = {}
-    for n, order in enumerate(elems_orders):
-        orders[n] = order
-    return polygons, orders
+from femhub import Mesh
 
 # This function is not used anywhere yet
 def get_solution_points(polygons, orders):
@@ -77,62 +66,29 @@ def run(problem_number=1, params={}):
     domain_file = os.path.join(current_dir, "data", "domain")
     p = Phaml(domain_file, problem_number)
     p.solve(params)
-    mesh_data = p.get_mesh()
-    polygons, orders = convert_mesh(*mesh_data)
+    x, y, elems, orders = p.get_mesh()
+    nodes = zip(x, y)
+    # Count nodes from 0:
+    elems = elems - 1
+    mesh = Mesh(nodes, elems, [], [], orders=orders)
+    return mesh
+    #polygons, orders = convert_mesh(*mesh_data)
 
-    f = plot_mesh_mpl(polygons, orders)
-    buffer = StringIO()
-    f.savefig(buffer, format='png', dpi=80)
-    return_png_image(buffer)
+    #f = plot_mesh_mpl(polygons, orders)
+    #buffer = StringIO()
+    #f.savefig(buffer, format='png', dpi=80)
+    #return_png_image(buffer)
 
 
-    x, y, mesh, _ = mesh_data
-    values = p.get_solution_values(x, y)
+    #x, y, mesh, _ = mesh_data
+    #values = p.get_solution_values(x, y)
 
-    mesh = [elem-1 for elem in mesh]
-    f = plot_sln_mayavi(x, y, mesh, values)
+    #mesh = [elem-1 for elem in mesh]
+    #f = plot_sln_mayavi(x, y, mesh, values)
     # We need to save the image through a file, until we figure out how to
     # force mayavi to save it to the buffer directly
-    _, filename = tempfile.mkstemp("a.png")
-    f.savefig(filename)
-    buffer = StringIO()
-    buffer.write(open(filename).read())
-    return_png_image(buffer)
-
-def return_png_image(png_data):
-    """
-    Returns the PNG image in png_data into the online lab as a result.
-
-    png_data ... StringIO() instance (or similar)
-
-    You can call this function as many times as you want, and it will keep
-    appending new images at the end of the output cell.
-    """
-    frame = inspect.currentframe().f_back
-
-    # FIXME: This depends on where you call the return_png_image() function
-    # from:
-    frame = frame.f_back
-
-    try:
-        try:
-            plots = frame.f_globals['__plots__']
-        except KeyError:
-            plots = []
-
-        value = png_data.getvalue()
-
-        data = base64.b64encode(value)
-        hash = hashlib.sha1(data).hexdigest()
-
-        plots.append({
-            'data': data,
-            'size': len(value),
-            'type': 'image/png',
-            'encoding': 'base64',
-            'checksum': hash,
-        })
-
-        frame.f_globals['__plots__'] = plots
-    finally:
-        del frame
+    #_, filename = tempfile.mkstemp("a.png")
+    #f.savefig(filename)
+    #buffer = StringIO()
+    #buffer.write(open(filename).read())
+    #return_png_image(buffer)

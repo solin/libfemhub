@@ -1,3 +1,8 @@
+import base64
+import hashlib
+import inspect
+
+
 def plot_mesh_mpl(polygons=None, polynomial_orders=None, edges_only=False):
     """
     Plots an hp-FEM mesh (optionally including the element orders).
@@ -197,3 +202,41 @@ def plotsln(mesh, z=None, sln=None, colorbar=False, view=(0,0),
     if view:
         mlab.view(view[0], view[1])
     mlab.savefig(filename)
+
+def return_png_image(png_data):
+    """
+    Returns the PNG image in png_data into the online lab as a result.
+
+    png_data ... StringIO() instance (or similar)
+
+    You can call this function as many times as you want, and it will keep
+    appending new images at the end of the output cell.
+    """
+    frame = inspect.currentframe().f_back
+
+    # FIXME: This depends on where you call the return_png_image() function
+    # from:
+    frame = frame.f_back
+
+    try:
+        try:
+            plots = frame.f_globals['__plots__']
+        except KeyError:
+            plots = []
+
+        value = png_data.getvalue()
+
+        data = base64.b64encode(value)
+        hash = hashlib.sha1(data).hexdigest()
+
+        plots.append({
+            'data': data,
+            'size': len(value),
+            'type': 'image/png',
+            'encoding': 'base64',
+            'checksum': hash,
+        })
+
+        frame.f_globals['__plots__'] = plots
+    finally:
+        del frame
