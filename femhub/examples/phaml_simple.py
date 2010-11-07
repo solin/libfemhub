@@ -2,21 +2,11 @@
 Python version of the example "simple".
 """
 import os
-import base64
-import hashlib
-import inspect
-import tempfile
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
 
 from numpy import array
 
 from phaml import Phaml
-from femhub.plot import plot_mesh_mpl, plot_sln_mayavi
-from femhub import Mesh
+from femhub import Mesh, Solution
 
 # This function is not used anywhere yet
 def get_solution_points(polygons, orders):
@@ -68,27 +58,14 @@ def run(problem_number=1, params={}):
     p.solve(params)
     x, y, elems, orders = p.get_mesh()
     nodes = zip(x, y)
-    # Count nodes from 0:
+    # Phaml counts nodes from 1, but we count from 0:
     elems = elems - 1
+
     mesh = Mesh(nodes, elems, [], [], orders=orders)
-    return mesh
-    #polygons, orders = convert_mesh(*mesh_data)
-
-    #f = plot_mesh_mpl(polygons, orders)
-    #buffer = StringIO()
-    #f.savefig(buffer, format='png', dpi=80)
-    #return_png_image(buffer)
-
-
-    #x, y, mesh, _ = mesh_data
-    #values = p.get_solution_values(x, y)
-
-    #mesh = [elem-1 for elem in mesh]
-    #f = plot_sln_mayavi(x, y, mesh, values)
-    # We need to save the image through a file, until we figure out how to
-    # force mayavi to save it to the buffer directly
-    #_, filename = tempfile.mkstemp("a.png")
-    #f.savefig(filename)
-    #buffer = StringIO()
-    #buffer.write(open(filename).read())
-    #return_png_image(buffer)
+    sol = Solution(mesh)
+    # get xy points
+    x, y = sol.get_xy_points()
+    # get values in those points from Phaml
+    values = p.get_solution_values(x, y)
+    sol.set_values(values)
+    return sol

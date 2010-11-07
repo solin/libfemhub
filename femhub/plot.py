@@ -1,6 +1,7 @@
 import sys
 import base64
 import hashlib
+import tempfile
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -252,4 +253,13 @@ def return_png_image(png_data):
 def return_mpl_figure(fig):
     buffer = StringIO()
     fig.savefig(buffer, format='png', dpi=80)
+    return_png_image(buffer)
+
+def return_mayavi_figure(fig):
+    # We need to save the image through a file, until we figure out how to
+    # force mayavi to save it to the buffer directly
+    _, filename = tempfile.mkstemp("a.png")
+    fig.savefig(filename)
+    buffer = StringIO()
+    buffer.write(open(filename).read())
     return_png_image(buffer)
