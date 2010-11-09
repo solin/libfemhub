@@ -63,9 +63,11 @@ def run(problem_number=1, params={}):
 
     mesh = Mesh(nodes, elems, [], [], orders=orders)
     sol = Solution(mesh)
-    # get xy points
-    x, y = sol.get_xy_points()
-    # get values in those points from Phaml
-    values = p.get_solution_values(x, y)
-    sol.set_values(values)
-    return sol
+    # Refine mesh for plotting purposes.
+    x_plot, y_plot, elems_plot = sol.create_plotting_mesh()
+    # Get solution at vertex values of the plotting mesh from Phaml.
+    values_plot = p.get_solution_values(x_plot, y_plot)
+    # Plotting the solution.
+    sol.plot(x_plot, y_plot, elems_plot, values_plot)
+    #return sol
+    return
